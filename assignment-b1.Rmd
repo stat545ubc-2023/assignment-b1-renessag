@@ -1,0 +1,138 @@
+---
+title: "STAT 545B Assignment B1 Deliverable"
+output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Exercise 1 & 2: Make and Document a Function    
+
+One example of a versatile series of functions is to `group_by()` one or more variables, then calculate the proportion and count of a specific observation within these groups. 
+
+## 1.0 Examples of Grouping & Counting Conditional Observations
+
+```{r}
+#Loading the necessary packages
+library(tidyverse)
+library(palmerpenguins)
+library(gapminder)
+library(devtools)
+library(roxygen2)
+```
+
+
+### 1.1 `penguins` Data Set  
+
+```{r}
+#Previewing `penguins` data set 
+head(penguins)
+```
+
+```{r}
+#Summarizing the variables of `penguins` data set 
+summary(penguins)
+```
+
+The following code groups the above data by `species` and `island`, then counts the number and proportion of observations where `bill_length_mm > 40`.
+
+```{r}
+penguins %>% group_by(species, island) %>%
+  summarize(n = n(),
+            count = length(which(bill_length_mm > 40)),
+            prop = (length(which(bill_length_mm > 40))/n())*100)
+```
+
+### 1.2 `gapminder` Data Set
+
+```{r}
+#Previewing `gapminder` data set 
+head(gapminder)
+```
+
+```{r}
+#Summarizing the variables of `gapminder` data set 
+summary(gapminder)
+```
+
+The following code groups the above data by `year`, then counts the number and proportion of observations where `lifeExp > 60`.
+
+```{r}
+gapminder %>% group_by(year) %>%
+  summarize(n = n(),
+            count = length(which(gdpPercap > 9000)),
+            prop = (length(which(gdpPercap > 9000))/n())*100)
+```
+
+
+## 2.0 Designing a Generic Function  
+
+The following code creates a function called `group_count_and_prop` that uses three inputs: `.data`, `...` and `.cond` to call a data frame, variables to group by and the condition to count, respectively. The output is a new data frame summarizing the number and proportion of observations in the input data frame that match the input condition within each given group. 
+
+```{r}
+#' @title Count and calculate proportions in group(s) 
+#' @description Summarizes the number and proportion of observations that meet one or more conditions within given group(s).
+#' @param .data A data frame, data frame extension (e.g. a tibble), or a lazy data frame (e.g. from dbplyr or dtplyr).
+#' @param ... Variables to group by.
+#' @param cond Short for "condition". Expressions that return a logical value. Expressions are defined in terms of variables in .data and multiple expressions, if included, must be combined with the & operator. Only rows for which all conditions return TRUE are evaluated.  
+#' @return A new data frame summarizing the groups, total number of observations in each group, count of observations that return TRUE for the condition(s) and proportion (%) of observations that return TRUE for the condition(s)
+#' @examples
+#' group_count_and_prop(starwars, gender, cond = height > 150 & mass > 50)
+#' group_count_and_prop(mtcars, cyl, cond = mpg > 20)
+#' @export
+
+group_count_and_prop <- function(.data, ..., cond) {
+  .data %>% group_by(...) %>%
+    summarize(n = n(),
+              count = length(which({{ cond }})),
+              prop = (length(which({{ cond }}))/n())*100)
+}
+```
+  
+  
+# Exercise 3: Include Examples
+
+## 3.0 Examples
+
+### 3.1 `penguins` Data Set  
+Recall the `penguins` data set introduced in Section 1.0.
+
+```{r}
+#Summarizing the variables of `penguins` data set
+summary(penguins)
+```
+
+Here is an example of employing the `group_count_and_prop` function to group the `penguins` data set by `species` and `island`, then counting the number and proportion of observations where `bill_length_mm > 40`. The resulting tibble matches the output generated in Section 1.0.
+
+```{r}
+group_count_and_prop(penguins,
+                     species, island,
+                     cond = bill_length_mm > 40)
+```
+
+Here is an an example of employing the `group_count_and_prop` function to group the `penguins` data set by `species`, then counting the number and proportion of observations where `body_mass_g > 4000` and `sex == "female"`. 
+
+```{r}
+group_count_and_prop(penguins,
+                     species,
+                     cond = body_mass_g > 4000 & sex == "female")
+```
+
+### 3.2 `gapminder` Data Set  
+Recall the `gapminder` data set introduced in Section 1.0.
+
+```{r}
+#Summarizing the variables of `gapminder` data set
+summary(gapminder)
+```
+
+Here is an example of employing the `group_count_and_prop` function to group the `gapminder` data set by `year`, then counting the number and proportion of observations where `lifeExp > 60`. The resulting tibble matches the output generated in Section 1.0.
+
+```{r}
+group_count_and_prop(gapminder, 
+                     year,
+                     cond = lifeExp > 60)
+```
+
+# Exercise 4: Test the Function
+
