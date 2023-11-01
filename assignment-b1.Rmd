@@ -59,14 +59,14 @@ The following code groups the above data by `year`, then counts the number and p
 ```{r}
 gapminder %>% group_by(year) %>%
   summarize(n = n(),
-            count = length(which(gdpPercap > 9000)),
-            prop = (length(which(gdpPercap > 9000))/n())*100)
+            count = length(which(lifeExp > 60)),
+            prop = (length(which(lifeExp > 60))/n())*100)
 ```
 
 
 ## 2.0 Designing a Generic Function  
 
-The following code creates a function called `group_count_and_prop` that uses three inputs: `.data`, `...` and `.cond` to call a data frame, variables to group by and the condition to count, respectively. The output is a new data frame summarizing the number and proportion of observations in the input data frame that match the input condition within each given group. 
+The following code creates a function called `group_count_and_prop` that uses three inputs: `.data`, `...` and `cond` to call (1) a data frame, (2) variables to group by and (3) the condition to evaluate, respectively. The output is a new data frame summarizing the number and proportion of observations in the input data frame that match the input condition within each given group. 
 
 ```{r}
 #' @title Count and calculate proportions in group(s) 
@@ -98,14 +98,14 @@ group_count_and_prop <- function(.data, ..., cond) {
 ## 3.0 Examples
 
 ### 3.0.1 `penguins` Data Set  
-Recall the `penguins` data set introduced in Section 1.0.
+Recall the `penguins` data set introduced in **Section 1.0**.
 
 ```{r}
 #Summarizing the variables of `penguins` data set
 summary(penguins)
 ```
 
-Here is an example of employing the `group_count_and_prop` function to group the `penguins` data set by `species` and `island`, then counting the number and proportion of observations where `bill_length_mm > 40`. The resulting tibble matches the output generated in Section 1.0.
+Here is an example of employing the `group_count_and_prop` function to group the `penguins` data set by `species` and `island`, then counting the number and proportion of observations where `bill_length_mm > 40`. The resulting tibble matches the output generated in **Section 1.0**.
 
 ```{r}
 group_count_and_prop(penguins,
@@ -123,14 +123,14 @@ group_count_and_prop(penguins,
 
   
 ### 3.0.2 `gapminder` Data Set  
-Recall the `gapminder` data set introduced in Section 1.0.
+Recall the `gapminder` data set introduced in **Section 1.0**.
 
 ```{r}
 #Summarizing the variables of `gapminder` data set
 summary(gapminder)
 ```
 
-Here is an example of employing the `group_count_and_prop` function to group the `gapminder` data set by `year`, then counting the number and proportion of observations where `lifeExp > 60`. The resulting tibble matches the output generated in Section 1.0.
+Here is an example of employing the `group_count_and_prop` function to group the `gapminder` data set by `year`, then counting the number and proportion of observations where `lifeExp > 60`. The resulting tibble matches the output generated in **Section 1.0**.
 
 ```{r}
 group_count_and_prop(gapminder, 
@@ -140,7 +140,7 @@ group_count_and_prop(gapminder,
 
   
 # Exercise 4: Test the Function  
-The following code tests the `group_count_and_prop` function given various types of input to test the robustness of its intended use and its response to inappropriate inputs. 
+The following section formally tests the `group_count_and_prop` function given various types of input to test the robustness of its intended use and its response to inappropriate inputs.
 
 ## 4.0 Multiple inputs in single arugment 
 These scenarios test the flexibility of the two variable inputs in `group_count_and_prop` for the embedded `group_by` and `length(which())` functions. 
@@ -158,7 +158,7 @@ test401 <- gapminder %>% group_by(continent, year) %>%
 print(test401)
 ```
 
-This test evaluates if the output of `group_count_and_prop` versus `test401` are identical.
+This test evaluates if the outputs of `group_count_and_prop` versus `test401` are identical.
 
 ```{r}
 #Test function against expected outcome test401
@@ -183,7 +183,7 @@ test402 <- penguins %>% group_by(species) %>%
 print(test402)
 ```
 
-This test evaluates if the output of `group_count_and_prop` versus `test402` are identical.
+This test evaluates if the outputs of `group_count_and_prop` versus `test402` are identical.
 
 ```{r}
 #Test function against expected outcome test402
@@ -198,9 +198,9 @@ test_that("returns vector with count and prop of observations matching two condi
 ### 4.1 Invalid `group_by` argument  
 The following code returns an error due to the `group_by` argument not being found in the data frame, `penguins`. 
 
-```{r}
+```{r, error = TRUE}
 #Expected error given a group_by() input not found in `penguins`
-penguins %>% group_by(lake) %>%
+penguins %>% group_by(notfound) %>%
   summarize(n = n(),
             count = length(which(body_mass_g > 4000)),
             prop = (length(which(body_mass_g > 4000))/n())*100)
@@ -212,7 +212,7 @@ This test evaluates if inputting the same invalid `group_by` argument in `group_
 #Test function with invalid group_by() argument
 test_that("error given invalid group_by argument", {
   expect_error(object = group_count_and_prop(penguins,
-                                             lake,
+                                             notfound,
                                              cond = body_mass_g > 4000))
 })
 ```
@@ -220,7 +220,7 @@ test_that("error given invalid group_by argument", {
 ### 4.2 Invalid `cond` argument  
 The following code returns an error due to a string input to `which()` when a logical expression is required. 
 
-```{r}
+```{r, error = TRUE}
 #Expected error given a string input in which() argument
 gapminder %>% group_by(continent) %>%
   summarize(n = n(),
