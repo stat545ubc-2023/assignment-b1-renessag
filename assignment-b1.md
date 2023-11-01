@@ -26,9 +26,9 @@ library(tidyverse) #includes dplyr package for data wrangling, used in designed 
     ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 
 ``` r
-library(palmerpenguins) #contains sample data set
-library(gapminder) #contains sample data set
-library(testthat) #includes multiple formal tests for function behaviours
+library(palmerpenguins) #contains sample data set to test function
+library(gapminder) #contains sample data set to test function
+library(testthat) #includes multiple formal tests to evaluate function behaviors
 ```
 
     ## 
@@ -399,7 +399,7 @@ test_that("returns vector grouped by two variables, count and prop by each group
 })
 ```
 
-    ## Test passed 🥳
+    ## Test passed 😀
 
 ### 4.0.2 Vector with no NAs, **two** `cond` inputs
 
@@ -437,7 +437,7 @@ test_that("returns vector with count and prop of observations matching two condi
 })
 ```
 
-    ## Test passed 🌈
+    ## Test passed 🥳
 
 ### 4.1 Invalid `group_by` argument
 
@@ -468,7 +468,7 @@ test_that("error given invalid group_by argument", {
 })
 ```
 
-    ## Test passed 🎉
+    ## Test passed 🎊
 
 ### 4.2 Invalid `cond` argument
 

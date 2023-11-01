@@ -15,9 +15,9 @@ One example of a versatile series of functions is to `group_by()` one or more va
 ```{r}
 #Loading the necessary packages
 library(tidyverse) #includes dplyr package for data wrangling, used in designed function
-library(palmerpenguins) #contains sample data set
-library(gapminder) #contains sample data set
-library(testthat) #includes multiple formal tests for function behaviours
+library(palmerpenguins) #contains sample data set to test function
+library(gapminder) #contains sample data set to test function
+library(testthat) #includes multiple formal tests to evaluate function behaviors
 ```
 
 
