@@ -14,15 +14,14 @@ One example of a versatile series of functions is to `group_by()` one or more va
 
 ```{r}
 #Loading the necessary packages
-library(tidyverse)
-library(palmerpenguins)
-library(gapminder)
-library(devtools)
-library(roxygen2)
+library(tidyverse) #includes dplyr package for data wrangling, used in designed function
+library(palmerpenguins) #contains sample data set
+library(gapminder) #contains sample data set
+library(testthat) #includes multiple formal tests for function behaviours
 ```
 
 
-### 1.1 `penguins` Data Set  
+### 1.0.1 `penguins` Data Set  
 
 ```{r}
 #Previewing `penguins` data set 
@@ -43,7 +42,7 @@ penguins %>% group_by(species, island) %>%
             prop = (length(which(bill_length_mm > 40))/n())*100)
 ```
 
-### 1.2 `gapminder` Data Set
+### 1.0.2 `gapminder` Data Set
 
 ```{r}
 #Previewing `gapminder` data set 
@@ -71,15 +70,19 @@ The following code creates a function called `group_count_and_prop` that uses th
 
 ```{r}
 #' @title Count and calculate proportions in group(s) 
+#' 
 #' @description Summarizes the number and proportion of observations that meet one or more conditions within given group(s).
+#' 
 #' @param .data A data frame, data frame extension (e.g. a tibble), or a lazy data frame (e.g. from dbplyr or dtplyr).
 #' @param ... Variables to group by.
 #' @param cond Short for "condition". Expressions that return a logical value. Expressions are defined in terms of variables in .data and multiple expressions, if included, must be combined with the & operator. Only rows for which all conditions return TRUE are evaluated.  
+#' 
 #' @return A new data frame summarizing the groups, total number of observations in each group, count of observations that return TRUE for the condition(s) and proportion (%) of observations that return TRUE for the condition(s)
+#' @export
+#' 
 #' @examples
 #' group_count_and_prop(starwars, gender, cond = height > 150 & mass > 50)
 #' group_count_and_prop(mtcars, cyl, cond = mpg > 20)
-#' @export
 
 group_count_and_prop <- function(.data, ..., cond) {
   .data %>% group_by(...) %>%
@@ -94,7 +97,7 @@ group_count_and_prop <- function(.data, ..., cond) {
 
 ## 3.0 Examples
 
-### 3.1 `penguins` Data Set  
+### 3.0.1 `penguins` Data Set  
 Recall the `penguins` data set introduced in Section 1.0.
 
 ```{r}
@@ -118,7 +121,8 @@ group_count_and_prop(penguins,
                      cond = body_mass_g > 4000 & sex == "female")
 ```
 
-### 3.2 `gapminder` Data Set  
+  
+### 3.0.2 `gapminder` Data Set  
 Recall the `gapminder` data set introduced in Section 1.0.
 
 ```{r}
@@ -134,5 +138,104 @@ group_count_and_prop(gapminder,
                      cond = lifeExp > 60)
 ```
 
-# Exercise 4: Test the Function
+  
+# Exercise 4: Test the Function  
+The following code tests the `group_count_and_prop` function given various types of input to test the robustness of its intended use and its response to inappropriate inputs. 
+
+## 4.0 Multiple inputs in single arugment 
+These scenarios test the flexibility of the two variable inputs in `group_count_and_prop` for the embedded `group_by` and `length(which())` functions. 
+
+### 4.0.1 Vector with no NAs, **two** `group_by` inputs  
+The following tibble is the output of the `gapminder` data set grouped by `continent` and `year`, followed by the count and proportion of observations where `lifeExp > 60`.
+
+```{r}
+#Expected output when ... = continent, year, cond = lifeExp > 60 in `gapminder`
+test401 <- gapminder %>% group_by(continent, year) %>%
+  summarize(n = n(),
+            count = length(which(lifeExp > 60)),
+            prop = (length(which(lifeExp > 60))/n())*100)
+
+print(test401)
+```
+
+This test evaluates if the output of `group_count_and_prop` versus `test401` are identical.
+
+```{r}
+#Test function against expected outcome test401
+test_that("returns vector grouped by two variables, count and prop by each group", {
+  expect_identical(object = group_count_and_prop(gapminder, 
+                                                 continent, year,
+                                                 cond = lifeExp > 60),
+                   expected = test401)
+})
+```
+
+### 4.0.2 Vector with no NAs, **two** `cond` inputs  
+The following tibble is the output of the `penguins` data set grouped by `species`, followed by the count and proportion of observations where `flipper_length_mm > 200` and `sex == "male"`.
+
+```{r}
+#Expected output when ... = species, cond = flipper_length_mm > 200 & sex == "male" in `penguins`
+test402 <- penguins %>% group_by(species) %>%
+  summarize(n = n(),
+            count = length(which(flipper_length_mm > 200 & sex == "male")),
+            prop = (length(which(flipper_length_mm > 200 & sex == "male"))/n())*100)
+
+print(test402)
+```
+
+This test evaluates if the output of `group_count_and_prop` versus `test402` are identical.
+
+```{r}
+#Test function against expected outcome test402
+test_that("returns vector with count and prop of observations matching two conditions", {
+  expect_identical(object = group_count_and_prop(penguins, 
+                                                 species,
+                                                 cond = flipper_length_mm > 200 & sex == "male"),
+                   expected = test402)
+})
+```
+
+### 4.1 Invalid `group_by` argument  
+The following code returns an error due to the `group_by` argument not being found in the data frame, `penguins`. 
+
+```{r}
+#Expected error given a group_by() input not found in `penguins`
+penguins %>% group_by(lake) %>%
+  summarize(n = n(),
+            count = length(which(body_mass_g > 4000)),
+            prop = (length(which(body_mass_g > 4000))/n())*100)
+```
+
+This test evaluates if inputting the same invalid `group_by` argument in `group_count_and_prop` returns an error.
+
+```{r}
+#Test function with invalid group_by() argument
+test_that("error given invalid group_by argument", {
+  expect_error(object = group_count_and_prop(penguins,
+                                             lake,
+                                             cond = body_mass_g > 4000))
+})
+```
+
+### 4.2 Invalid `cond` argument  
+The following code returns an error due to a string input to `which()` when a logical expression is required. 
+
+```{r}
+#Expected error given a string input in which() argument
+gapminder %>% group_by(continent) %>%
+  summarize(n = n(),
+            count = length(which("notlogical")),
+            prop = (length(which("notlogical"))/n())*100)
+```
+
+This test evaluates if inputting the same invalid `cond` argument in `group_count_and_prop` returns an error.
+
+```{r}
+#Test function with invalid `cond` argument
+test_that("error given invalid cond argument", {
+  expect_error(object = group_count_and_prop(gapminder,
+                                             continent,
+                                             cond = "notlogical"))
+})
+```
 
