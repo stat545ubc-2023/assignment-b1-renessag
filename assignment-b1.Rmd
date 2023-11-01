@@ -142,7 +142,7 @@ group_count_and_prop(gapminder,
 # Exercise 4: Test the Function  
 The following section formally tests the `group_count_and_prop` function given various types of input to test the robustness of its intended use and its response to inappropriate inputs.
 
-## 4.0 Multiple inputs in single arugment 
+## 4.0 Multiple inputs in single argument 
 These scenarios test the flexibility of the two variable inputs in `group_count_and_prop` for the embedded `group_by` and `length(which())` functions. 
 
 ### 4.0.1 Vector with no NAs, **two** `group_by` inputs  

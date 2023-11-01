@@ -343,7 +343,7 @@ The following section formally tests the `group_count_and_prop` function
 given various types of input to test the robustness of its intended use
 and its response to inappropriate inputs.
 
-## 4.0 Multiple inputs in single arugment
+## 4.0 Multiple inputs in single argument
 
 These scenarios test the flexibility of the two variable inputs in
 `group_count_and_prop` for the embedded `group_by` and `length(which())`
@@ -399,7 +399,7 @@ test_that("returns vector grouped by two variables, count and prop by each group
 })
 ```
 
-    ## Test passed 😀
+    ## Test passed 🥇
 
 ### 4.0.2 Vector with no NAs, **two** `cond` inputs
 
@@ -437,7 +437,7 @@ test_that("returns vector with count and prop of observations matching two condi
 })
 ```
 
-    ## Test passed 🥳
+    ## Test passed 😀
 
 ### 4.1 Invalid `group_by` argument
 
@@ -468,7 +468,7 @@ test_that("error given invalid group_by argument", {
 })
 ```
 
-    ## Test passed 🎊
+    ## Test passed 🥳
 
 ### 4.2 Invalid `cond` argument
 
@@ -501,4 +501,4 @@ test_that("error given invalid cond argument", {
 })
 ```
 
-    ## Test passed 🥇
+    ## Test passed 😸
